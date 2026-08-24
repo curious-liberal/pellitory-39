@@ -78,7 +78,7 @@ cargo --version
 ### Building
 
 ```sh
-git clone https://gitlab.com/curiio/pellitory-39.git
+git clone https://github.com/curious-liberal/pellitory-39.git
 cd pellitory-39
 ```
 
