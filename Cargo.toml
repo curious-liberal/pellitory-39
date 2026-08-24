@@ -1,0 +1,82 @@
+[workspace]
+members = [".", "sssmc39", "tiny-keccak"]
+
+[package]
+name = "pellitory-39"
+version = "1.0.0"
+edition = "2021"
+description = "Secure backup and recovery for cryptocurrency wallets using SLIP-0039 secret sharing"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+# Elliptic curve cryptography (Monero key derivation)
+# `zeroize` is pinned explicitly so `Scalar: Zeroize` (used by `derive_keys`)
+# remains available even if `default-features` is later turned off.
+curve25519-dalek = { version = "4", features = ["digest", "zeroize"] }
+
+# Keccak-256 hashing (Monero uses Keccak, not SHA-3). Vendored fork of
+# tiny-keccak 2.0.2 that zeroises the sponge state on drop so the
+# absorbed Monero private spend key does not linger in freed heap.
+tiny-keccak = { path = "tiny-keccak", features = ["keccak"] }
+
+# Secure memory handling — secrets wiped from RAM on drop
+zeroize = { version = "1", features = ["derive"] }
+secrecy = "0.10"
+
+# SLIP-0039 secret sharing (hardened local fork with zeroize)
+sssmc39 = { path = "sssmc39" }
+
+# BIP-39 mnemonic encoding (Bitcoin, Ethereum, etc.)
+bip39 = { package = "tiny-bip39", version = "1" }
+
+# CLI argument parsing (env enables PELLITORY_* environment variables)
+clap = { version = "4", features = ["derive", "env"] }
+# Shell completion script generation for `pellitory-39 completions`
+clap_complete = "4"
+
+# Hidden interactive input
+rpassword = "7"
+
+# age encryption for share export (phase: age-encrypted export). Always-on
+# (no feature flag) so every build can encrypt/decrypt file exports. The
+# `armor` feature is required for ASCII-armoured output (`encrypt_and_armor`,
+# `ArmoredReader`); `ssh` enables SSH Ed25519/RSA recipients.
+age = { version = "0.12", features = ["ssh", "armor"] }
+
+# ZIP container for bulk share export (per-share `.age` entries + README).
+# `default-features = false` + `deflate` only: we need nothing beyond basic
+# deflate compression of already-armoured ASCII content, keeping the
+# transitive dependency surface (and supply-chain exposure) minimal.
+zip = { version = "4", default-features = false, features = ["deflate"] }
+
+# GUI (eframe / egui) — behind the `gui` feature flag. Off by default so
+# CLI-only builds (and CI) never need system GUI toolchains. Enable with
+# `--features gui` or `--all-features`.
+eframe = { version = "0.31", optional = true, default-features = false, features = ["default_fonts", "glow", "wayland", "x11"] }
+rfd = { version = "0.15", optional = true }
+
+# Utilities
+anyhow = "1"
+hex = "0.4"
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+regex = "1"
+crc32fast = "1"
+
+[features]
+default = []
+# Build the desktop GUI (`--gui` flag). Requires eframe + rfd.
+gui = ["dep:eframe", "dep:rfd"]
+# Launch the GUI by default when the binary is invoked with no
+# subcommand (i.e. `pellitory-39` with no args opens a window instead of
+# printing `--help`). Requires `gui`. Explicit subcommands (`gen`, `split`,
+# …) and `--gui` still work as before, so CLI automation is unaffected.
+gui-default = ["gui"]
+
+[profile.release]
+opt-level = 2
+overflow-checks = true
+strip = "symbols"

@@ -1,0 +1,35 @@
+[package]
+name = "sssmc39"
+version = "0.0.3"
+authors = ["Yeastplume <yeastplume@protonmail.com>"]
+edition = "2018"
+license = "Apache-2.0"
+repository = "https://github.com/yeastplume/rust-sssmc39"
+description = "Work-in-Progress of Shamir Secret Sharing for Mnemonic Codes (SLIP-39)"
+
+[dependencies]
+lazy_static = "1.4.0"
+bitvec = "1.0.1"
+thiserror = "2"
+rand = "0.8.5"
+hmac = "0.12.1"
+sha2 = "0.10.6"
+zeroize = { version = "1", features = ["derive"] }
+ring = { version = "0.17", optional = true }
+digest = { version = "0.10.6", optional = true }
+pbkdf2 = { version = "0.12.1", optional = true, default-features = false }
+
+[features]
+#Highly recommended to use the ring version of pbkdf2.
+#Do not the rust_crypto version where security is paramount
+default = ["ring_pbkdf2"]
+ring_pbkdf2 = ["ring", "digest"]
+rust_crypto_pbkdf2 = ["pbkdf2"]
+
+[dev-dependencies]
+quickcheck = "1.0.3"
+flate2 = "1.0.25"
+itertools = "0.10.5"
+serde = "1.0.159"
+serde_derive = "1.0.159"
+serde_json = "1.0.95"

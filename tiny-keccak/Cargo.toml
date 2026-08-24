@@ -1,0 +1,42 @@
+# Vendored copy of tiny-keccak 2.0.2. The hashing algorithm is unchanged.
+# Hardening over upstream:
+#   - `impl Zeroize for Buffer` + `impl Drop for KeccakState` wipe the
+#     sponge state on drop so the absorbed Monero private spend key does
+#     not linger in freed heap memory.
+#   - The upstream `unsafe` sponge I/O (`core::mem::transmute` in
+#     `Buffer::execute`, raw-pointer loop in `xorin`) is rewritten in
+#     safe Rust, and the crate sets `#![forbid(unsafe_code)]` so no
+#     `unsafe` remains under any feature gate (verified by
+#     `cargo build --all-features` on the fork).
+# See the parent project's SECURITY.md (residual risk 5).
+
+[package]
+edition = "2018"
+name = "tiny-keccak"
+version = "2.0.2"
+authors = ["debris <marek.kotewicz@gmail.com>"]
+description = "An implementation of Keccak derived functions."
+homepage = "https://github.com/debris/tiny-keccak"
+keywords = ["hash", "sha3", "keccak", "crypto", "kangarootwelve"]
+categories = ["cryptography", "no-std"]
+license = "CC0-1.0"
+
+[package.metadata.docs.rs]
+all-features = true
+
+[dependencies]
+crunchy = { version = "0.2.2" }
+zeroize = { version = "1", default-features = false }
+
+[features]
+cshake = []
+default = []
+fips202 = ["keccak", "shake", "sha3"]
+k12 = []
+keccak = []
+kmac = ["cshake"]
+parallel_hash = ["cshake"]
+sha3 = []
+shake = []
+sp800 = ["cshake", "kmac", "tuple_hash"]
+tuple_hash = ["cshake"]
