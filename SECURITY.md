@@ -343,4 +343,4 @@ Pellitory-39 has not undergone a formal security audit. The cryptographic primit
 
 ## Reporting vulnerabilities
 
-If you find a security issue, please report it privately via [GitLab](https://gitlab.com/curiio/pellitory-39) rather than opening a public issue.
+If you find a security issue, please report it privately via [GitLab](https://github.com/curious-liberal/pellitory-39) rather than opening a public issue.
